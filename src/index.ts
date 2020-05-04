@@ -48,8 +48,7 @@ function commentsparser(context: string, type: string) {
   let tempblock = '';
   let isBlock = false;
   let blockStartline = 0;
-  const { comments } = commentsRules;
-  const { lineComment, blockComment } = comments;
+  const { lineComment, blockComment = [] } = commentsRules;
   const blockStart = blockComment[0];
   const blockEnd = blockComment[1];
 
@@ -71,13 +70,14 @@ function commentsparser(context: string, type: string) {
       }
       continue;
     }
-
-    if (lineContext.startsWith(lineComment)) {
+    // only has line rules
+    if (lineComment && lineContext.startsWith(lineComment)) {
       const value = lineContext.replace(lineComment, '');
       commentsAST.push(genAst('CommentLine', value, 1, i, 0, i, value.length));
       continue;
     }
-    if (lineContext.startsWith(blockStart)) {
+    // only has block rules
+    if (blockComment.length && lineContext.startsWith(blockStart)) {
       const blockValue = lineContext.replace(blockStart, '');
       if (lineContext.endsWith(blockEnd)) {
         const value = rmEndTag(blockValue, blockEnd);

@@ -1,16 +1,29 @@
 {
   "name": "common-comment-parser",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A general comment parser",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "build": "tsc && npm run update",
     "update": "auto-vers -t",
     "test": "nyc mocha test/*.ts",
     "cover": "nyc npm test && nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
-  "keywords": [],
+  "keywords": [
+    "comment-parser",
+    "parser",
+    "comments"
+  ],
   "author": "hua1995116 <qiufneghyf@gmail.com> (https://github.com/hua1995116)",
+  "homepage": "https://github.com/hua1995116/common-comment-parser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hua1995116/common-comment-parser"
+  },
+  "bugs": {
+    "url": "https://github.com/hua1995116/common-comment-parser/issues"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/mocha": "^7.0.2",
