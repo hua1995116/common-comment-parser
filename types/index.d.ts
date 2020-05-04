@@ -1,4 +1,4 @@
-interface commentsAST {
+export interface commentsAST {
     type: string;
     value: string;
     commentLine: number;

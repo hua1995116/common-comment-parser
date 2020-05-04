@@ -1,12 +1,12 @@
 {
   "name": "common-comment-parser",
   "version": "0.1.0",
-  "description": "A general comment parser",
+  "description": "A universal comment parser (supports more than 30 languages)",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "build": "tsc && npm run update",
-    "update": "auto-vers -t",
+    "build": "tsc",
+    "update": "npm run build && auto-vers -t",
     "test": "nyc mocha test/*.ts",
     "cover": "nyc npm test && nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },

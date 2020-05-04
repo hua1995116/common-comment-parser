@@ -1,10 +1,7 @@
-interface commentsType {
-    lineComment: string;
-    blockComment: string[];
-}
-interface TypeList {
+export interface TypeList {
     [key: string]: {
-        comments: commentsType;
+        lineComment?: string;
+        blockComment?: string[];
     };
 }
 declare const languageList: TypeList;
