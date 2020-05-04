@@ -47,12 +47,12 @@ function commentsparser(context: string, type: string) {
   const commentsAST: commentsAST[] = [];
   let tempblock = '';
   let isBlock = false;
-  let blockStartline = 0;
+  let blockStartline = 1;
   const { lineComment, blockComment = [] } = commentsRules;
   const blockStart = blockComment[0];
   const blockEnd = blockComment[1];
 
-  const lineList = context.split(/(\n|\r)/);
+  const lineList = context.split('\n');
   for (let i = 0; i < lineList.length; i++) {
     const lineContext = lineList[i].trim();
 
@@ -60,20 +60,19 @@ function commentsparser(context: string, type: string) {
       // end of block
       if (lineContext.endsWith(blockEnd)) {
         const value = rmEndTag(lineContext, blockEnd);
-        commentsAST.push(genAst('CommentBlock', tempblock + value, i - blockStartline, blockStartline, 0, i, value.length));
+        commentsAST.push(genAst('CommentBlock', tempblock + value, (i + 2 - blockStartline), blockStartline, 0, (i + 1 ), value.length));
         isBlock = false;
-        blockStartline = 0;
+        blockStartline = 1;
         tempblock = '';
       } else {
         tempblock += (lineContext + '\n');
-        blockStartline = i;
       }
       continue;
     }
     // only has line rules
     if (lineComment && lineContext.startsWith(lineComment)) {
       const value = lineContext.replace(lineComment, '');
-      commentsAST.push(genAst('CommentLine', value, 1, i, 0, i, value.length));
+      commentsAST.push(genAst('CommentLine', value, 1, (i + 1), 0, (i + 1), value.length));
       continue;
     }
     // only has block rules
@@ -82,11 +81,11 @@ function commentsparser(context: string, type: string) {
       if (lineContext.endsWith(blockEnd)) {
         // start and end in a line
         const value = rmEndTag(blockValue, blockEnd);
-        commentsAST.push(genAst('CommentBlock', value, 1, i, 0, i, value.length));
+        commentsAST.push(genAst('CommentBlock', value, 1, (i + 1), 0, (i + 1), value.length));
       } else {
         // start width block
         isBlock = true;
-        blockStartline = i;
+        blockStartline = i + 1;
         tempblock += (blockValue + '\n');
       }
     }
