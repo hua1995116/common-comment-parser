@@ -1,3 +1,5 @@
 /test
 /example
 /src
+.nyc_output
+coverage
