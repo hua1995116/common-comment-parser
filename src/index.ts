@@ -80,9 +80,11 @@ function commentsparser(context: string, type: string) {
     if (blockComment.length && lineContext.startsWith(blockStart)) {
       const blockValue = lineContext.replace(blockStart, '');
       if (lineContext.endsWith(blockEnd)) {
+        // start and end in a line
         const value = rmEndTag(blockValue, blockEnd);
         commentsAST.push(genAst('CommentBlock', value, 1, i, 0, i, value.length));
       } else {
+        // start width block
         isBlock = true;
         blockStartline = i;
         tempblock += (blockValue + '\n');
