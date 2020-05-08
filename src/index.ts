@@ -66,7 +66,6 @@ function commentsparser(context: string, type: string) {
   }
 
   while (index < context.length) {
-    // console.log(111);
     if (context.charAt(index) === ' ' || context.charAt(index) === '\r' || context.charAt(index) === '\t') {
       step(1);
       continue;
