@@ -19,21 +19,117 @@ npm install common-comment-parser
 ```javascript
 import parser from 'common-comment-parser';
 
-const context = `
-// hello common-comment-parser
+const context = `// line1
 
+const cc = 111;
 /*
-hello common-comment-parser
+block1
 */
+console.log(222);
 
-/* hello common-comment-parser */
-console.log('hello');
+console.log(11); /* block2 */ const c = 111; /* block3 */ console.log(111); // line2
+
+
+const aaa = 111; // line3
+
+const ddd = `//ddd//ddd//dddd`;
+const eee = '//eee//eee//eee';
+const fff = "//ddd//ddd//dddd";
+
+const dd = `\`ddddd//dddd`;
+const ee = '\'ddddd//dddd';
+const ff = "\"ddddd//dddd";
 `
 
 const ext = 'js';
 
 console.log(parser(context, ext));
-// [{ "type": "CommentLine", "value": " hello common-comment-parser", "commentLine": 1, "loc": { "start": { "line": 0, "column": 0 }, "end": { "line": 0, "column": 28 } } }, { "type": "CommentBlock", "value": "\n\nhello common-comment-parser\n\n", "commentLine": 1, "loc": { "start": { "line": 7, "column": 0 }, "end": { "line": 8, "column": 0 } } }, { "type": "CommentBlock", "value": " hello common-comment-parser ", "commentLine": 1, "loc": { "start": { "line": 12, "column": 0 }, "end": { "line": 12, "column": 29 } } }]
+// [
+    {
+        "type": "CommentLine",
+        "value": " line1",
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 3
+            },
+            "end": {
+                "line": 1,
+                "column": 9
+            }
+        }
+    },
+    {
+        "type": "CommentBlock",
+        "value": "\nblock1\n",
+        "loc": {
+            "start": {
+                "line": 4,
+                "column": 2
+            },
+            "end": {
+                "line": 6,
+                "column": 1
+            }
+        }
+    },
+    {
+        "type": "CommentBlock",
+        "value": " block2 ",
+        "loc": {
+            "start": {
+                "line": 9,
+                "column": 19
+            },
+            "end": {
+                "line": 9,
+                "column": 27
+            }
+        }
+    },
+    {
+        "type": "CommentBlock",
+        "value": " block3 ",
+        "loc": {
+            "start": {
+                "line": 9,
+                "column": 47
+            },
+            "end": {
+                "line": 9,
+                "column": 55
+            }
+        }
+    },
+    {
+        "type": "CommentLine",
+        "value": " line2",
+        "loc": {
+            "start": {
+                "line": 9,
+                "column": 78
+            },
+            "end": {
+                "line": 9,
+                "column": 84
+            }
+        }
+    },
+    {
+        "type": "CommentLine",
+        "value": " line3",
+        "loc": {
+            "start": {
+                "line": 12,
+                "column": 19
+            },
+            "end": {
+                "line": 12,
+                "column": 25
+            }
+        }
+    }
+]
 ```
 
 **parser(context, ext)**
@@ -48,7 +144,6 @@ console.log(parser(context, ext));
 commentsAST {
   type: string;
   value: string;
-  commentLine: number;
   loc: {
     start: {
       line: number,
