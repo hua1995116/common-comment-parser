@@ -5,9 +5,9 @@ import (
 )
 
 /*
-main hello
+block1
 */
 func main() {
-  // main
+  // line1
   fmt.Println("hello");
 }

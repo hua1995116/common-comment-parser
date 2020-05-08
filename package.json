@@ -1,6 +1,6 @@
 {
   "name": "common-comment-parser",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A universal comment parser (supports more than 30 languages)",
   "main": "dist/index.js",
   "types": "types/index.d.ts",

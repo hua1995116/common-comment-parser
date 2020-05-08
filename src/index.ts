@@ -3,7 +3,6 @@ import typeList from './type';
 export interface commentsAST {
   type: string;
   value: string;
-  commentLine: number;
   loc: {
     start: {
       line: number,
@@ -15,17 +14,16 @@ export interface commentsAST {
     }
   }
 }
-
-function rmEndTag(value: string, blockEnd: string) {
-  const location = value.lastIndexOf(blockEnd);
-  return value.slice(0, location);
+enum TokenType {
+  LINE = 'CommentLine',
+  BLOCK = 'CommentBlock',
+  EOF = '',
 }
 
-function genAst(type: string, value: string, line: number, startline: number, startCol: number, endLine: number, endCol: number): commentsAST {
+function genAst(type: string, value: string, startline: number, startCol: number, endLine: number, endCol: number): commentsAST {
   return {
     type,
     value,
-    commentLine: line,
     loc: {
       start: {
         line: startline,
@@ -45,49 +43,110 @@ function commentsparser(context: string, type: string) {
     return [];
   }
   const commentsAST: commentsAST[] = [];
-  let tempblock = '';
-  let isBlock = false;
+  let index = 0;
+  let fileLine = 1;
+  let fileCol = 1;
   let blockStartline = 1;
+  let blockStartCol = 1;
+  let tempComments = '';
+  let newline = true;
   const { lineComment, blockComment = [] } = commentsRules;
   const blockStart = blockComment[0];
   const blockEnd = blockComment[1];
 
-  const lineList = context.split('\n');
-  for (let i = 0; i < lineList.length; i++) {
-    const lineContext = lineList[i].trim();
+  function step(number: number) {
+    index += number;
+    fileCol += number;
+  }
 
-    if (isBlock) {
-      // end of block
-      if (lineContext.endsWith(blockEnd)) {
-        const value = rmEndTag(lineContext, blockEnd);
-        commentsAST.push(genAst('CommentBlock', tempblock + value, (i + 2 - blockStartline), blockStartline, 0, (i + 1 ), value.length));
-        isBlock = false;
-        blockStartline = 1;
-        tempblock = '';
-      } else {
-        tempblock += (lineContext + '\n');
-      }
+  function lineup() {
+    fileLine++;
+    fileCol = 0;
+    newline = true;
+  }
+
+  while (index < context.length) {
+    // console.log(111);
+    if (context.charAt(index) === ' ' || context.charAt(index) === '\r' || context.charAt(index) === '\t') {
+      step(1);
       continue;
-    }
-    // only has line rules
-    if (lineComment && lineContext.startsWith(lineComment)) {
-      const value = lineContext.replace(lineComment, '');
-      commentsAST.push(genAst('CommentLine', value, 1, (i + 1), 0, (i + 1), value.length));
-      continue;
-    }
-    // only has block rules
-    if (blockComment.length && lineContext.startsWith(blockStart)) {
-      const blockValue = lineContext.replace(blockStart, '');
-      if (lineContext.endsWith(blockEnd)) {
-        // start and end in a line
-        const value = rmEndTag(blockValue, blockEnd);
-        commentsAST.push(genAst('CommentBlock', value, 1, (i + 1), 0, (i + 1), value.length));
-      } else {
-        // start width block
-        isBlock = true;
-        blockStartline = i + 1;
-        tempblock += (blockValue + '\n');
+    } else if (context.substr(index, lineComment.length) === lineComment) {
+      // 跳过匹配到的 line start
+      step(lineComment.length);
+      const startCol = fileCol;
+      while (index < context.length && context.charAt(index) !== '\n') {
+        // 换行了说明这一行注释结束了
+        tempComments += context.charAt(index);
+        step(1);
       }
+      // 执行到这边说明要么结束了、要么匹配到了换行符
+      commentsAST.push(genAst(TokenType.LINE, tempComments, fileLine, startCol, fileLine, fileCol));
+      // 重置临时变量
+      tempComments = '';
+      lineup()
+      step(1);
+    } else if (context.substr(index, blockStart.length) === blockStart) {
+      // 如果是在开头则是块，跳过匹配到的 block start
+      step(blockStart.length);
+      // 初始化，块的开始位置
+      blockStartline = fileLine;
+      blockStartCol = fileCol;
+      while (index < context.length && context.substr(index, blockEnd.length) !== blockEnd) {
+        tempComments += context.charAt(index);
+        if (context.charAt(index) === '\n') {
+          // 块内换行
+          lineup()
+        }
+        step(1);
+      }
+
+      if (index < context.length) {
+        // 没有遍历完说明块有结束符，则去存储
+        commentsAST.push(genAst(TokenType.BLOCK, tempComments, blockStartline, blockStartCol, fileLine, fileCol));
+        tempComments = '';
+        // 跳过当前的结束符
+        step(blockEnd.length);
+      }
+    } else if (context.charAt(index) === '`') {
+      // 跳过开头的`
+      step(1);
+      while (index < context.length && context.charAt(index) !== '`') {
+        // 转义 \` 跳过
+        if (context.charAt(index) === '\\') {
+          step(1);
+        }
+        step(1);
+      }
+      // 跳过结束的`
+      step(1);
+    }  else if (context.charAt(index) === '\'') {
+      step(1);
+      while (index < context.length && context.charAt(index) !== '\'') {
+        // 转义 \' 跳过
+        if (context.charAt(index) === '\\') {
+          step(1);
+        }
+        step(1);
+      }
+      step(1);
+    }  else if (context.charAt(index) === '"') {
+      step(1);
+      while (index < context.length && context.charAt(index) !== '"') {
+        // 转义 \' 跳过
+        if (context.charAt(index) === '\\') {
+          step(1);
+        }
+        step(1);
+      }
+      step(1);
+    } else if (context.charAt(index) === '\n') {
+      step(1);
+      lineup()
+    } else {
+      if (newline) {
+        newline = false;
+      }
+      step(1);
     }
   }
   return commentsAST;
