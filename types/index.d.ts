@@ -1,7 +1,6 @@
 export interface commentsAST {
     type: string;
     value: string;
-    commentLine: number;
     loc: {
         start: {
             line: number;
