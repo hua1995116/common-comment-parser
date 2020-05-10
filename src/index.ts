@@ -69,7 +69,7 @@ function commentsparser(context: string, type: string) {
     if (context.charAt(index) === ' ' || context.charAt(index) === '\r' || context.charAt(index) === '\t') {
       step(1);
       continue;
-    } else if (context.substr(index, lineComment.length) === lineComment) {
+    } else if (lineComment && context.substr(index, lineComment.length) === lineComment) {
       // 跳过匹配到的 line start
       step(lineComment.length);
       const startCol = fileCol;
@@ -84,7 +84,7 @@ function commentsparser(context: string, type: string) {
       tempComments = '';
       lineup()
       step(1);
-    } else if (context.substr(index, blockStart.length) === blockStart) {
+    } else if (blockStart && context.substr(index, blockStart.length) === blockStart) {
       // 如果是在开头则是块，跳过匹配到的 block start
       step(blockStart.length);
       // 初始化，块的开始位置

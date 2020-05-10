@@ -136,6 +136,29 @@ describe('Test support language', () => {
     ];
     assert.deepEqual(comments, expect);
   });
+  it('Test html', () => {
+    const url = './static/demo.html';
+    const extname = path.extname(url);
+    const context = fs.readFileSync(path.join(__dirname, url), 'utf-8');
+    const comments = parser(context, extname.replace('.', ''));
+    const expect = [
+      {
+        "type": "CommentBlock",
+        "value": " <div>hello</div> ",
+        "loc": {
+          "start": {
+            "line": 9,
+            "column": 6
+          },
+          "end": {
+            "line": 9,
+            "column": 24
+          }
+        }
+      }
+    ];
+    assert.deepEqual(comments, expect);
+  })
 });
 
 describe("Test don't support language", () => {
